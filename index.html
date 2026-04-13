@@ -2,43 +2,58 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Marketing Beast AI - Articles</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Beast AI | Content Hub</title>
     <style>
-        /* هاد الستايل هو لي كيعطي المنظر ديال الزجاج لي فالتصاور */
         :root {
-            --bg: #0a0c10;
+            --bg: #080a10;
             --neon: #39FF14;
             --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
         }
 
-        body { background: var(--bg); color: white; font-family: sans-serif; padding: 40px; }
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-image: radial-gradient(circle at top right, rgba(57, 255, 20, 0.05), transparent);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
         
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 25px; 
+        .header { text-align: center; margin-bottom: 50px; }
+        .header h1 { font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .header span { color: var(--neon); }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
         }
 
         /* كرت المقال الزجاجي */
-        .article-card {
+        .card {
             background: var(--glass);
             backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
             position: relative;
             overflow: hidden;
-            transition: 0.3s;
+            transition: 0.4s ease;
         }
 
-        /* تأثير الـ Skeleton (الشيمر) لي بان فالفيديو */
+        .card:hover { transform: translateY(-10px); border-color: var(--neon); }
+
+        /* تأثير الشيمر (Skeleton) */
         .skeleton {
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
+            border-radius: 12px;
             position: relative;
             overflow: hidden;
-            height: 20px;
-            margin-bottom: 10px;
         }
 
         .skeleton::after {
@@ -52,57 +67,65 @@
 
         @keyframes shimmer { 100% { left: 100%; } }
 
-        /* إخفاء المحتوى الحقيقي حتى يسالي الـ Skeleton */
-        .article-content { display: none; }
-        .content-ready .article-content { display: block; }
-        .content-ready .skeleton { display: none; }
+        .sk-img { height: 160px; margin-bottom: 20px; }
+        .sk-title { height: 25px; width: 70%; margin-bottom: 15px; }
+        .sk-text { height: 15px; width: 90%; margin-bottom: 10px; }
 
-        .article-title { color: var(--neon); margin-bottom: 10px; font-size: 1.4rem; }
+        /* إظهار المحتوى الحقيقي */
+        .content { display: none; }
+        .ready .content { display: block; }
+        .ready .skeleton { display: none; }
+
+        .title { color: var(--neon); font-size: 1.5rem; margin-bottom: 15px; }
+        .snippet { color: #ccc; line-height: 1.6; }
+        .category { font-size: 0.7rem; text-transform: uppercase; color: var(--neon); border: 1px solid; padding: 2px 10px; border-radius: 50px; }
     </style>
 </head>
 <body>
 
-    <h1 style="text-align:center; margin-bottom:40px;">Marketing Beast <span style="color:var(--neon)">AI</span></h1>
-    
-    <div class="grid" id="mainGrid">
+    <div class="container">
+        <div class="header">
+            <h1>Marketing Beast <span>AI</span></h1>
+            <p>Smart Automation Dashboard</p>
         </div>
 
+        <div class="grid" id="mainGrid">
+            </div>
+    </div>
+
     <script>
-        // الكود لي حطيتي خاصو يكون هنا وسط الـ script
-        async function loadArticles() {
+        async function loadContent() {
             const grid = document.getElementById('mainGrid');
             try {
-                // ملاحظة: خاص ملف articles.json يكون فنس المجلد
-                const response = await fetch('articles.json');
-                const articles = await response.json();
+                const res = await fetch('articles.json');
+                if (!res.ok) throw new Error();
+                const articles = await res.json();
                 
-                grid.innerHTML = '';
+                grid.innerHTML = ''; // مسح أي كود قديم
 
-                articles.forEach((art, index) => {
+                articles.forEach((art, i) => {
                     const card = document.createElement('div');
-                    card.className = 'article-card';
+                    card.className = 'card';
                     card.innerHTML = `
-                        <div class="skeleton" style="height:150px;"></div>
-                        <div class="skeleton"></div>
-                        <div class="skeleton" style="width:70%;"></div>
-                        <div class="article-content">
-                            <span style="color:var(--neon); font-size:0.8rem;">${art.category || 'SEO'}</span>
-                            <h2 class="article-title">${art.title}</h2>
-                            <p>${art.snippet}</p>
+                        <div class="skeleton sk-img"></div>
+                        <div class="skeleton sk-title"></div>
+                        <div class="skeleton sk-text"></div>
+                        <div class="content">
+                            <span class="category">${art.category || 'AI Tool'}</span>
+                            <h2 class="title">${art.title}</h2>
+                            <p class="snippet">${art.snippet}</p>
                         </div>
                     `;
                     grid.appendChild(card);
-
-                    setTimeout(() => {
-                        card.classList.add('content-ready');
-                    }, 1000 + (index * 200));
+                    
+                    // تحويل السكيلتون لمحتوى حقيقي بعد ثانية
+                    setTimeout(() => card.classList.add('ready'), 1000 + (i * 200));
                 });
-            } catch (error) {
-                console.error("Error loading articles:", error);
-                grid.innerHTML = '<p>تأكد من وجود ملف articles.json</p>';
+            } catch (e) {
+                grid.innerHTML = '<p style="text-align:center; width:100%;">جاري توليد المقالات... يرجى الانتظار أو تفعيل GitHub Actions</p>';
             }
         }
-        window.onload = loadArticles;
+        window.onload = loadContent;
     </script>
 </body>
 </html>
