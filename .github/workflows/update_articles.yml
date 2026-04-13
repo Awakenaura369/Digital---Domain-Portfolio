@@ -1,14 +1,14 @@
-name: AI Content Automation
+name: AI Content Pipeline
 on:
   schedule:
-    - cron: '0 0 * * *' # كايخدم كل ليلة
-  workflow_dispatch: # بوطونة للتشغيل اليدوي
+    - cron: '0 12 * * *' # Runs daily at noon
+  workflow_dispatch: # Button to run manually
 
 jobs:
-  build:
+  generate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -16,18 +16,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Groq
+      - name: Install Dependencies
         run: pip install groq
 
-      - name: Run Generator
+      - name: AI Generation Task
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: python generator.py
 
-      - name: Deploy Changes
+      - name: Update Repository
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+          git config user.name "AI-Bot"
+          git config user.email "bot@mouhcine-digital.com"
           git add articles.json
-          git commit -m "Auto-update content" || exit 0
+          git commit -m "Automated: New SEO content generated" || exit 0
           git push
