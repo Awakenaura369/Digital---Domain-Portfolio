@@ -2,45 +2,37 @@ import os
 import json
 from groq import Groq
 
-# حط الـ API Key ديالك هنا
-client = Groq(api_key="YOUR_GROQ_API_KEY")
+# الساروت كيجي من GitHub Secrets
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-def generate_articles(topics):
-    articles = []
+def generate_data():
+    # المواضيع لي بغيتي تولد عليها مقالات
+    topics = [
+        "أهمية الدومينات المميزة في 2026",
+        "كيف تبيع خدمات السيو للمقاولات الصغرى",
+        "مستقبل التسويق بالذكاء الاصطناعي"
+    ]
     
-    for topic in topics:
-        print(f"Generating article for: {topic}...")
-        
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a professional SEO content writer. Return ONLY a JSON object with 'title', 'category', and 'snippet' keys in Arabic."
-                },
-                {
-                    "role": "user",
-                    "content": f"Write a catchy SEO title and a 2-sentence summary about: {topic}",
-                }
-            ],
-            model="llama-3.3-70b-versatile", # أحسن موديل فـ Groq حالياً
-            response_format={"type": "json_object"}
-        )
-        
-        # تحويل الاستجابة لـ Dictionary
-        content = json.loads(chat_completion.choices[0].message.content)
-        articles.append(content)
+    results = []
+    
+    for t in topics:
+        try:
+            print(f"Generating: {t}")
+            completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "Return ONLY a JSON object with 'title', 'snippet', and 'category' keys in Arabic."},
+                    {"role": "user", "content": t}
+                ],
+                model="llama-3.3-70b-versatile",
+                response_format={"type": "json_object"}
+            )
+            results.append(json.loads(completion.choices[0].message.content))
+        except Exception as e:
+            print(f"Error: {e}")
 
-    # حفظ النتائج فملف JSON للموقع
+    # حفظ النتائج
     with open('articles.json', 'w', encoding='utf-8') as f:
-        json.dump(articles, f, ensure_ascii=False, indent=4)
-    
-    print("Done! articles.json is ready.")
+        json.dump(results, f, ensure_ascii=False, indent=4)
 
-# جرب السكريبت بهاد المواضيع
-my_topics = [
-    "كيفاش تبيع دومينات فـ 2026",
-    "أهمية Backlinks للسيو المحلي",
-    "استخدام الذكاء الاصطناعي فـ التسويق"
-]
-
-generate_articles(my_topics)
+if __name__ == "__main__":
+    generate_data()
