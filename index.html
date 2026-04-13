@@ -1,83 +1,37 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Content Hub - Mouhcine Digital</title>
-    <style>
-        :root {
-            --bg-color: #0d0f14;
-            --glass: rgba(255, 255, 255, 0.03);
-            --shimmer: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            padding: 40px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
-        /* الكرت الزجاجي */
-        .article-card {
-            background: var(--glass);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 20px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* تأثير الوميض (Skeleton Shimmer) */
-        .skeleton {
-            background: #1a1d24;
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-        }
-
-        .skeleton::after {
-            content: "";
-            position: absolute;
-            top: 0; right: 0; bottom: 0; left: 0;
-            background: var(--shimmer);
-            transform: translateX(-100%);
-            animation: shimmer 1.5s infinite;
-        }
-
-        @keyframes shimmer {
-            100% { transform: translateX(100%); }
-        }
-
-        .skeleton-img { height: 180px; margin-bottom: 15px; }
-        .skeleton-title { height: 25px; width: 70%; margin-bottom: 10px; }
-        .skeleton-text { height: 15px; width: 90%; margin-bottom: 5px; }
-
-        /* المحتوى الحقيقي (يظهر بعد التحميل) */
-        .content { display: none; }
-    </style>
-</head>
-<body>
-
-    <div class="grid" id="content-grid">
-        <div class="article-card">
-            <div class="skeleton skeleton-img"></div>
-            <div class="skeleton skeleton-title"></div>
-            <div class="skeleton skeleton-text"></div>
-            <div class="skeleton skeleton-text"></div>
-        </div>
+async function loadArticles() {
+    const grid = document.getElementById('mainGrid');
+    
+    try {
+        // قراءة الملف لي صاوب بايثون
+        const response = await fetch('articles.json');
+        const articles = await response.json();
         
-        </div>
+        // مسح الكرت التجريبي
+        grid.innerHTML = '';
 
-    <script>
-        // هنا يمكن إضافة كود بسيط لإخفاء الـ Skeleton وإظهار الداتا الحقيقية
-        // التي جلبها Groq بعد انتهاء عملية الـ Fetch.
-    </script>
-</body>
-</html>
+        articles.forEach((art, index) => {
+            const card = document.createElement('div');
+            card.className = 'article-card';
+            card.innerHTML = `
+                <div class="skeleton sk-img"></div>
+                <div class="skeleton sk-title"></div>
+                <div class="skeleton sk-text"></div>
+                <div class="article-content">
+                    <span class="category-tag" style="color:#39FF14; font-size:0.7rem;">${art.category || 'SEO'}</span>
+                    <h2 class="article-title">${art.title}</h2>
+                    <p class="article-snippet">${art.snippet}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+
+            // تأثير التحميل (Skeleton) كيبقى ثانية واحدة عاد كيبان المحتوى
+            setTimeout(() => {
+                card.classList.add('content-ready');
+            }, 1000 + (index * 200)); // كل كرت كيبان مورا لآخر بشوية
+        });
+    } catch (error) {
+        console.error("Error loading articles:", error);
+    }
+}
+
+window.onload = loadArticles;
