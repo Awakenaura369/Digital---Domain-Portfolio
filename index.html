@@ -1,37 +1,108 @@
-async function loadArticles() {
-    const grid = document.getElementById('mainGrid');
-    
-    try {
-        // قراءة الملف لي صاوب بايثون
-        const response = await fetch('articles.json');
-        const articles = await response.json();
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Marketing Beast AI - Articles</title>
+    <style>
+        /* هاد الستايل هو لي كيعطي المنظر ديال الزجاج لي فالتصاور */
+        :root {
+            --bg: #0a0c10;
+            --neon: #39FF14;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 40px; }
         
-        // مسح الكرت التجريبي
-        grid.innerHTML = '';
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
+        }
 
-        articles.forEach((art, index) => {
-            const card = document.createElement('div');
-            card.className = 'article-card';
-            card.innerHTML = `
-                <div class="skeleton sk-img"></div>
-                <div class="skeleton sk-title"></div>
-                <div class="skeleton sk-text"></div>
-                <div class="article-content">
-                    <span class="category-tag" style="color:#39FF14; font-size:0.7rem;">${art.category || 'SEO'}</span>
-                    <h2 class="article-title">${art.title}</h2>
-                    <p class="article-snippet">${art.snippet}</p>
-                </div>
-            `;
-            grid.appendChild(card);
+        /* كرت المقال الزجاجي */
+        .article-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
 
-            // تأثير التحميل (Skeleton) كيبقى ثانية واحدة عاد كيبان المحتوى
-            setTimeout(() => {
-                card.classList.add('content-ready');
-            }, 1000 + (index * 200)); // كل كرت كيبان مورا لآخر بشوية
-        });
-    } catch (error) {
-        console.error("Error loading articles:", error);
-    }
-}
+        /* تأثير الـ Skeleton (الشيمر) لي بان فالفيديو */
+        .skeleton {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            height: 20px;
+            margin-bottom: 10px;
+        }
 
-window.onload = loadArticles;
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer { 100% { left: 100%; } }
+
+        /* إخفاء المحتوى الحقيقي حتى يسالي الـ Skeleton */
+        .article-content { display: none; }
+        .content-ready .article-content { display: block; }
+        .content-ready .skeleton { display: none; }
+
+        .article-title { color: var(--neon); margin-bottom: 10px; font-size: 1.4rem; }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align:center; margin-bottom:40px;">Marketing Beast <span style="color:var(--neon)">AI</span></h1>
+    
+    <div class="grid" id="mainGrid">
+        </div>
+
+    <script>
+        // الكود لي حطيتي خاصو يكون هنا وسط الـ script
+        async function loadArticles() {
+            const grid = document.getElementById('mainGrid');
+            try {
+                // ملاحظة: خاص ملف articles.json يكون فنس المجلد
+                const response = await fetch('articles.json');
+                const articles = await response.json();
+                
+                grid.innerHTML = '';
+
+                articles.forEach((art, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'article-card';
+                    card.innerHTML = `
+                        <div class="skeleton" style="height:150px;"></div>
+                        <div class="skeleton"></div>
+                        <div class="skeleton" style="width:70%;"></div>
+                        <div class="article-content">
+                            <span style="color:var(--neon); font-size:0.8rem;">${art.category || 'SEO'}</span>
+                            <h2 class="article-title">${art.title}</h2>
+                            <p>${art.snippet}</p>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+
+                    setTimeout(() => {
+                        card.classList.add('content-ready');
+                    }, 1000 + (index * 200));
+                });
+            } catch (error) {
+                console.error("Error loading articles:", error);
+                grid.innerHTML = '<p>تأكد من وجود ملف articles.json</p>';
+            }
+        }
+        window.onload = loadArticles;
+    </script>
+</body>
+</html>
