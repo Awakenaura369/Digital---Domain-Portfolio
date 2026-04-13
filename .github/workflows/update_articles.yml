@@ -1,34 +1,34 @@
-name: Generate AI Articles
-
+name: Auto AI Content
 on:
   schedule:
-    - cron: '0 0 * * *' # هادي كتقول ليه يخدم كل ليلة مع 12
-  workflow_dispatch: # هادي كتعطيك بوطونة باش تخدمو وقتما بغيتي يدوياً
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4 # تحديث لـ v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # تحديث لـ v5
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install Groq
         run: pip install groq
 
-      - name: Run Generator Script
+      - name: Run Generator
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }} # السر هنا!
-        run: python your_script_name.py
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        # تأكد أن اسم الملف هنا هو نفسو لي عندك فـ GitHub
+        run: python generator.py 
 
-      - name: Commit and Push changes
+      - name: Commit and Push
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
           git add articles.json
-          git commit -m "Auto-update articles from Groq" || exit 0
+          git commit -m "Auto Update Articles" || exit 0
           git push
