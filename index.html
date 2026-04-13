@@ -1,178 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glass Domain Strength Meter</title>
+    <title>AI Content Hub - Mouhcine Digital</title>
     <style>
         :root {
-            /* ألوان نيون جديدة للمجال الرقمي */
-            --primary-cyan: #00f2fe; 
-            --primary-gold: #facd68;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --bg-dark: #050609;
+            --bg-color: #0d0f14;
+            --glass: rgba(255, 255, 255, 0.03);
+            --shimmer: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
         }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
             color: white;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
         }
 
-        /* حاوية زجاجية أكثر استطالة */
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: 40px;
-            padding: 40px 25px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-            text-align: center;
-            width: 130px;
-            position: relative;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
         }
 
-        .thermostat-inner {
-            height: 380px;
-            display: flex;
-            justify-content: center;
-            position: relative;
-        }
-
-        /* أنبوب الميزان الرقمي */
-        .track {
-            width: 22px;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+        /* الكرت الزجاجي */
+        .article-card {
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
+            padding: 20px;
             overflow: hidden;
             position: relative;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.03);
         }
 
-        /* السائل الرقمي (تدرج لوني جديد) */
-        .mercury {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 75%; /* القيمة الافتراضية */
-            background: linear-gradient(to top, #4facfe, var(--primary-cyan));
-            box-shadow: 0 0 30px var(--primary-cyan);
-            transition: height 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        /* تأثير الوميض (Skeleton Shimmer) */
+        .skeleton {
+            background: #1a1d24;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
         }
 
-        /* قراءة النص */
-        .temp-readout {
-            margin-top: 25px;
-        }
-
-        .temp-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary-cyan);
-            text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
-            letter-spacing: -1px;
-        }
-
-        .temp-label {
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            color: #777;
-            margin-top: 8px;
-            text-transform: uppercase;
-        }
-
-        .status-text {
-            font-size: 0.85rem;
-            margin-top: 12px;
-            color: #bbb;
-            font-weight: 300;
-            min-height: 1.2rem; /* حجز مساحة للنص */
-        }
-
-        /* تأثير اللمعان الزجاجي العلوى */
-        .glass-panel::after {
+        .skeleton::after {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 40px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 40%);
-            pointer-events: none;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: var(--shimmer);
+            transform: translateX(-100%);
+            animation: shimmer 1.5s infinite;
         }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .skeleton-img { height: 180px; margin-bottom: 15px; }
+        .skeleton-title { height: 25px; width: 70%; margin-bottom: 10px; }
+        .skeleton-text { height: 15px; width: 90%; margin-bottom: 5px; }
+
+        /* المحتوى الحقيقي (يظهر بعد التحميل) */
+        .content { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="glass-panel">
-        <div class="thermostat-inner">
-            <div class="track" id="track">
-                <div class="mercury" id="mercury"></div>
-            </div>
+    <div class="grid" id="content-grid">
+        <div class="article-card">
+            <div class="skeleton skeleton-img"></div>
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
         </div>
-
-        <div class="temp-readout">
-            <div class="temp-value" id="tempValue">75%</div>
-            <div class="temp-label">Domain Strength</div>
-            <div class="status-text" id="statusText">Premium Asset</div>
+        
         </div>
-    </div>
 
     <script>
-        const mercury = document.getElementById('mercury');
-        const tempValue = document.getElementById('tempValue');
-        const statusText = document.getElementById('statusText');
-        const track = document.getElementById('track');
-
-        track.addEventListener('click', (e) => {
-            const rect = track.getBoundingClientRect();
-            const y = e.clientY - rect.top; 
-            
-            let heightPercent = 100 - (y / rect.height * 100);
-            heightPercent = Math.max(0, Math.min(100, Math.round(heightPercent)));
-            
-            // تحديث الواجهة
-            mercury.style.height = heightPercent + '%';
-            tempValue.innerText = heightPercent + '%';
-            
-            // منطق تقييم الدومين الجديد
-            if (heightPercent >= 90) {
-                statusText.innerText = "Ultra Premium";
-                statusText.style.color = "#facd68"; // ذهبي
-                tempValue.style.color = "#facd68";
-                mercury.style.background = "linear-gradient(to top, #ff9a9e, #facd68)"; // تدرج ذهبي
-                mercury.style.boxShadow = "0 0 30px #facd68";
-            } else if (heightPercent >= 70) {
-                statusText.innerText = "Premium Asset";
-                statusText.style.color = "#bbb";
-                tempValue.style.color = "#00f2fe";
-                mercury.style.background = "linear-gradient(to top, #4facfe, #00f2fe)";
-                mercury.style.boxShadow = "0 0 30px #00f2fe";
-            } else if (heightPercent >= 40) {
-                statusText.innerText = "Brandable Name";
-                statusText.style.color = "#bbb";
-                tempValue.style.color = "#00f2fe";
-                mercury.style.background = "linear-gradient(to top, #4facfe, #00f2fe)";
-                mercury.style.boxShadow = "0 0 30px #00f2fe";
-            } else {
-                statusText.innerText = "Niche Specific";
-                statusText.style.color = "#888";
-                tempValue.style.color = "#00f2fe";
-                mercury.style.background = "linear-gradient(to top, #4facfe, #00f2fe)";
-                mercury.style.boxShadow = "0 0 30px #00f2fe";
-            }
-        });
+        // هنا يمكن إضافة كود بسيط لإخفاء الـ Skeleton وإظهار الداتا الحقيقية
+        // التي جلبها Groq بعد انتهاء عملية الـ Fetch.
     </script>
 </body>
 </html>
